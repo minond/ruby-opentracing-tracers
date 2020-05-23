@@ -20,7 +20,7 @@ module OpenTracing
         :port => config[:port],
         :service_name => service_name,
         :sampler => sampler,
-        :reporter => reporter,
+        :reporter => reporter
       )
     end
 
@@ -35,15 +35,20 @@ module OpenTracing
     def self.build_jaeger_reporter(service_name, config)
       Jaeger::Client::Reporters::RemoteReporter.new(
         :flush_interval => config[:flush_interval],
-        :sender => Jaeger::UdpSender.new(
-          :host => config[:host],
-          :port => config[:port],
-          :max_packet_size => config[:max_packet_size],
-          :logger => Logger.new(STDOUT),
-          :encoder => Jaeger::Encoders::ThriftEncoder.new(
-            :service_name => service_name
-          )
-        )
+        :sender => build_jaeger_sender(service_name, config)
+      )
+    end
+
+    # @param [String] service_name
+    # @param [Hash] config
+    # @return [Jaeger::UdpSender]
+    def self.build_jaeger_sender(service_name, config)
+      Jaeger::UdpSender.new(
+        :host => config[:host],
+        :port => config[:port],
+        :max_packet_size => config[:max_packet_size],
+        :logger => Logger.new(STDOUT),
+        :encoder => Jaeger::Encoders::ThriftEncoder.new(:service_name => service_name)
       )
     end
   end
