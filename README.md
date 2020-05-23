@@ -50,11 +50,7 @@ OpenTracing::Tracers::DelayedJob.instrument!
 #### Rack tracer
 
 ```ruby
-module Web
-  class Application < Rails::Application
-    config.middleware.use ::OpenTracing::Tracers::Rack
-  end
-end
+OpenTracing::Tracers::Rack.instrument!
 ```
 
 

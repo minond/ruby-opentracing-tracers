@@ -3,6 +3,14 @@
 module OpenTracing
   module Tracers
     class Rack
+      def self.instrument!
+        @instrumented = true
+      end
+
+      def self.instrumented?
+        !!@instrumented
+      end
+
       def initialize(app)
         @app = app
       end
@@ -10,6 +18,8 @@ module OpenTracing
       # rubocop:disable Metrics/AbcSize
       # rubocop:disable Metrics/MethodLength
       def call(env)
+        return @app.call(env) unless self.class.instrumented?
+
         method = env["REQUEST_METHOD"]
 
         tags = {

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require "opentracing/tracers/version"
+require "opentracing/tracers/rack"
+require "opentracing/tracers/railtie" if defined? ::Rails::Railtie
+require "opentracing/tracers/delayed_job" if defined? ::Delayed::Plugin
+require "opentracing/tracers/active_record" if defined? ::ActiveSupport
 
 module OpenTracing
   module Tracers
