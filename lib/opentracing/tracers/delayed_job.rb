@@ -3,6 +3,10 @@
 module OpenTracing
   module Tracers
     class DelayedJob < ::Delayed::Plugin
+      def self.instrument!
+        ::Delayed::Worker.plugins << OpenTracing::Tracers::DelayedJob
+      end
+
       callbacks do |lifecycle|
         lifecycle.around(:enqueue) do |job, &block|
           OpenTracing.start_active_span("Enqueue #{get_job_name(job)}", :tags => generate_enqueue_tags(job)) do |scope|
