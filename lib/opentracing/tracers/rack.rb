@@ -30,7 +30,10 @@ module OpenTracing
         }
 
         scope = OpenTracing.global_tracer.start_active_span(method, :tags => tags)
-        span = scope.span
+        span = scope&.span
+
+        return @app.call(env) if span.nil?
+
         env["rack.span"] = span
 
         @app.call(env).tap do |status_code, _headers, _body|
@@ -40,8 +43,8 @@ module OpenTracing
           span.operation_name = route if route
         end
       rescue StandardError => e
-        span.set_tag("error", true)
-        span.log_kv(:event => "error",
+        span&.set_tag("error", true)
+        span&.log_kv(:event => "error",
                     :"error.kind" => e.class.to_s,
                     :"error.object" => e,
                     :message => e.message,
@@ -49,7 +52,7 @@ module OpenTracing
 
         raise
       ensure
-        scope.close
+        scope&.close
       end
       # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
